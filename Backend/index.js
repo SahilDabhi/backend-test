@@ -22,17 +22,46 @@ mongoose.connect("mongodb://127.0.0.1:27017/users");
 app.post("/register", (req, res) => {
   const { username, password, email } = req.body;
 
-  bcrypt
-    .hash(password, 10)
-    .then((hash) => {
-      return UserModel.create({ username, email, password: hash });
-    })
-    .then(() => {
-      res.json({ status: "successfully added" });
-    })
-    .catch((err) => {
-      res.status(500).json({ status: "error", error: err.message });
-    });
+  if (!username || !email || !password) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+  const emailRegEx = /^[\w-.]+@([\w-]+\.)+[a-zA-Z]{2,7}$/;
+  if (!emailRegEx.test(email)) {
+    return res.status(400).json({ message: "Invalid email format" });
+  }
+
+  if (password.length < 4) {
+    return res
+      .status(400)
+      .json({ message: "Password must be at least 4 characters long" });
+  }
+
+  UserModel.findOne({ $or: [{ username }, { email }] }).then((user) => {
+    if (user) {
+      const errors = [];
+      if (user.username === username) {
+        errors.push("Username already registered");
+      }
+      if (user.email === email) {
+        errors.push("Email already registered");
+      }
+      return res.status(409).json({ message: errors.join(", ") });
+    }
+
+    bcrypt
+      .hash(password, 10)
+      .then((hash) => {
+        return UserModel.create({ username, email, password: hash });
+      })
+      .then(() => {
+        res.json({ message: "successfully added user" });
+      })
+      .catch((err) => {
+        res
+          .status(500)
+          .json({ status: "error", error: err.message, data: res.data });
+      });
+  });
 });
 
 app.post("/login", (req, res) => {
@@ -51,13 +80,13 @@ app.post("/login", (req, res) => {
             }
           );
           res.cookie("token", token);
-          return res.json({ status: "Successful", token: token });
+          return res.json({ status: "Successful login", token: token });
         } else {
-          return res.json("password is incorrect  ");
+          return res.json("Password is incorrect");
         }
       });
     } else {
-      return res.json("No record found");
+      return res.json("No email found try signin");
     }
   });
 });
