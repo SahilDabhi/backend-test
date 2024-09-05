@@ -9,15 +9,22 @@ export const SignUp = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const onHandleSubmit = (e) => {
+  const onHandleSubmit = async (e) => {
     e.preventDefault();
-    axios
-      .post("http://localhost:3001/register", { username, email, password })
-      .then((res) => {
-        console.log(res);
-        navigate("/login");
-      })
-      .catch((err) => console.log(err));
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/api/auth/register",
+        {
+          username,
+          email,
+          password,
+        }
+      );
+      console.log(response);
+      navigate("/login");
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (

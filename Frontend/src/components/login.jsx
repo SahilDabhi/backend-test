@@ -9,19 +9,22 @@ const Login = () => {
 
   axios.defaults.withCredentials = true;
 
-  const onHandleSubmit = (e) => {
+  const onHandleSubmit = async (e) => {
     e.preventDefault();
-    axios
-      .post("http://localhost:3001/login", { email, password })
-      .then((res) => {
-        if (res.data.status === "Successful login") {
-          navigate("/");
-          console.log(res);
-        } else {
-          console.log(res);
-        }
-      })
-      .catch((err) => console.log(err));
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/api/auth/login",
+        { email, password }
+      );
+      if (response.data.status === "Successful login") {
+        navigate("/");
+        console.log(response);
+      } else {
+        console.log(response);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
