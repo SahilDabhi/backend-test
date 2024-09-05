@@ -21,6 +21,7 @@ export const SignUp = () => {
         }
       );
       console.log(response);
+      console.log(res.body);
       navigate("/login");
     } catch (error) {
       console.error(error);

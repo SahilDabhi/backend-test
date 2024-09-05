@@ -18,9 +18,9 @@ const Login = () => {
       );
       if (response.data.status === "Successful login") {
         navigate("/");
-        console.log(response);
+        // console.log(response);
       } else {
-        console.log(response);
+        // console.log(response);
       }
     } catch (err) {
       console.log(err);
